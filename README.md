@@ -4,9 +4,9 @@
 
 Make your own admin login form.
 
-#### Istallation
+#### Installation
 
-This module's files should be placed in /site/modules/CustomAdminLoginTemplate/
+This module's files should be placed in `/site/modules/CustomAdminLoginTemplate/`.
 
 #### Usage
 
