@@ -1,0 +1,10 @@
+{
+	"title": "Custom Admin Login Template",
+	"summary": "Make your own admin login form.",
+	"version": "0.1.0",
+	"author": "owzim",
+	"icon": "eye",
+	"requires": "ProcessWire>=2.5.0, PHP>=5.4.0",
+    "singular": true,
+    "autoload": "process=ProcessLogin"
+}

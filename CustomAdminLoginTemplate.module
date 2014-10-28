@@ -1,0 +1,70 @@
+<?php
+
+class CustomAdminLoginTemplate extends Wire implements Module {
+
+	const DEFAULT_TEMPLATE_FILE_NAME = 'admin-login.php';
+
+	public function __construct() {}
+
+	public function init() {
+		$this->addHook('ProcessLogin::execute', $this, 'ProcessLoginHook');
+	}
+
+
+	public function ProcessLoginHook($event) {
+
+		// either use the custom config path or the default one
+		if (!isset($this->config->paths->loginTemplate)) {
+			$templateFilePath = $this->config->paths->templates . self::DEFAULT_TEMPLATE_FILE_NAME;
+		} else {
+			$templateFilePath = $this->config->paths->loginTemplate;
+		}
+
+		// if given file does not exist, stop hook execution, falls back to default login
+		if (!file_exists($templateFilePath)) return;
+
+		$success = false;
+
+		$inputUser = $this->input->post->user;
+		$inputPass = $this->input->post->pass;
+
+		$loginErrors = new stdClass;
+		$loginErrors->count = 0;
+
+		if (empty($inputUser)) {
+			$loginErrors->userEmpty = true;
+			$loginErrors->count++;
+		}
+
+		if (empty($inputPass)) {
+			$loginErrors->passEmpty = true;
+			$loginErrors->count++;
+		}
+
+		// check for login before outputting markup
+		if($inputUser && $inputPass) {
+
+		    $user = $this->sanitizer->username($this->input->post->user);
+		    $pass = $this->input->post->pass;
+
+		    $this->session->login($user, $pass);
+
+		    $success = $this->user->isLoggedin();
+
+		    if (!$success) {
+		    	$loginErrors->wrongUserOrPass = true;
+		    	$loginErrors->count++;
+		    }
+		}
+
+		if (!$success) {
+			$tpl = new TemplateFile($templateFilePath);
+			$tpl->setArray(array(
+				'loginErrors' => $loginErrors
+			));
+			die($tpl->render());
+		} else {
+			$this->session->redirect($this->config->urls->admin);
+		}
+	}
+}
